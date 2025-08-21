@@ -1,35 +1,36 @@
-import { useState } from "react";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Login } from "./pages/login";
-import { UserDashboard } from "./pages/user-dashboard";
-import { AdminDashboard } from "./pages/admin-dashboard";
+import { useEffect } from "react"
+import { Toaster } from "@/components/ui/toaster"
+import { Toaster as Sonner } from "@/components/ui/sonner"
+import { TooltipProvider } from "@/components/ui/tooltip"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { useAuth } from "@/hooks/useAuth"
+import { AuthPage } from "./pages/auth"
+import { UserDashboard } from "./pages/user-dashboard"
+import { AdminDashboard } from "./pages/admin-dashboard"
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient()
 
 const App = () => {
-  const [user, setUser] = useState<{ username: string; role: "admin" | "user" } | null>(null);
+  const { user, userProfile, loading, isAuthenticated, signOut } = useAuth()
 
-  const handleLogin = (username: string, role: "admin" | "user") => {
-    setUser({ username, role });
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    )
+  }
 
-  const handleLogout = () => {
-    setUser(null);
-  };
-
-  if (!user) {
+  if (!isAuthenticated || !userProfile) {
     return (
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <Login onLogin={handleLogin} />
+          <AuthPage />
         </TooltipProvider>
       </QueryClientProvider>
-    );
+    )
   }
 
   return (
@@ -37,14 +38,14 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        {user.role === "admin" ? (
-          <AdminDashboard userName={user.username} onLogout={handleLogout} />
+        {userProfile.role === "admin" ? (
+          <AdminDashboard userName={userProfile.username} onLogout={signOut} />
         ) : (
-          <UserDashboard userName={user.username} onLogout={handleLogout} />
+          <UserDashboard userName={userProfile.username} onLogout={signOut} />
         )}
       </TooltipProvider>
     </QueryClientProvider>
-  );
-};
+  )
+}
 
 export default App;

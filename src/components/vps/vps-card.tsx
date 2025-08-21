@@ -9,15 +9,16 @@ interface VPSCardProps {
   vps: {
     id: string
     name: string
-    status: "running" | "stopped" | "pending"
-    containerId: string
+    status: "running" | "stopped" | "pending" | "deploying" | "error"
+    container_id: string | null
     resources: {
       cpu: string
       ram: string
       disk: string
     }
-    ipAddress: string
-    uptime?: string
+    ip_address: string | null
+    uptime_seconds?: number
+    created_at?: string
   }
   onStart: (id: string) => void
   onStop: (id: string) => void
@@ -46,17 +47,17 @@ export function VPSCard({ vps, onStart, onStop, onRestart, onConsole, onRedeploy
           </StatusBadge>
         </div>
         <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-          <span>ID: {vps.containerId.slice(0, 12)}</span>
-          {vps.ipAddress && (
+          <span>ID: {vps.container_id?.slice(0, 12) || 'N/A'}</span>
+          {vps.ip_address && (
             <>
               <span>•</span>
-              <span>{vps.ipAddress}</span>
+              <span>{vps.ip_address}</span>
             </>
           )}
-          {vps.uptime && isRunning && (
+          {vps.uptime_seconds && isRunning && (
             <>
               <span>•</span>
-              <span>Uptime: {vps.uptime}</span>
+              <span>Uptime: {Math.floor(vps.uptime_seconds / 3600)}h {Math.floor((vps.uptime_seconds % 3600) / 60)}m</span>
             </>
           )}
         </div>

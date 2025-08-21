@@ -10,9 +10,10 @@ interface WebTerminalProps {
   vpsName: string
   isOpen: boolean
   onClose: () => void
+  onExecuteCommand?: (vpsId: string, command: string, workingDirectory?: string) => Promise<any>
 }
 
-export function WebTerminal({ vpsId, vpsName, isOpen, onClose }: WebTerminalProps) {
+export function WebTerminal({ vpsId, vpsName, isOpen, onClose, onExecuteCommand }: WebTerminalProps) {
   const [isMaximized, setIsMaximized] = useState(false)
   const [command, setCommand] = useState("")
   const [history, setHistory] = useState<Array<{ type: "command" | "output"; content: string }>>([
